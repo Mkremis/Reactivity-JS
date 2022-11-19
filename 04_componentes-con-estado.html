@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Componentes con estado</title>
+  </head>
+  <body>
+    <h1>Componentes con estado</h1>
+    <form id="todo-form">
+      <input type="text" id="todo-item" placeholder="Tarea por hacer" />
+      <input type="submit" value="Agregar" />
+    </form>
+    <h2>Lista de tareas</h2>
+    <ul id="todo-list"></ul>
+    <script>
+      // El STATE GLOBAL:
+      const state = {
+        todoList: [],
+        usuarios: "",
+      };
+
+      //Template de UI:
+      const template = () => {
+        if (template.data.todoList.length < 1)
+          return `<p><em>Lista sin tareas por hacer</em></p>`;
+        let todos = template.data.todoList
+          .map((item) => `<li>${item}</li>`)
+          .join("");
+        return todos;
+      };
+      template.data = {
+        todoList: [],
+      };
+
+      // Render UI:
+      const render = () => {
+        console.log("estado global", state);
+        console.log("estado local", template.data);
+        const $list = document.getElementById("todo-list");
+        if (!$list) return;
+        $list.innerHTML = template();
+      };
+
+      // Actualizar el State en forma reactiva:
+      const setState = (obj) => {
+        for (let key in obj) {
+          if (template.data.hasOwnProperty(key)) {
+            template.data[key] = obj[key];
+          }
+        }
+
+        // console.log("template.data:", template.data);
+        // console.log("setState:", obj);
+        // console.log("getState:", getState());
+        render();
+      };
+      // Obteniendo una copia inmutable del estado
+      const getState = () => JSON.parse(JSON.stringify(template.data)); //structuredClone(state);
+
+      document.addEventListener("DOMContentLoaded", render);
+
+      // Estableciendo valores por defecto al State:
+      setState({
+        todoList: ["Pintar", "Comer"],
+      });
+
+      document.addEventListener("submit", (e) => {
+        if (!e.target.matches("#todo-form")) return false;
+        e.preventDefault();
+        const $item = document.getElementById("todo-item");
+        if (!$item) return;
+
+        // actualizar el State de forma reactiva
+        const lastState = getState();
+        lastState.todoList.push($item.value);
+        // todoList.push($item.value);
+        setState({
+          todoList: lastState.todoList,
+        });
+        // limpiar el input
+        $item.value = ""; // e.target.reset();
+        $item.focus();
+      });
+    </script>
+  </body>
+</html>
